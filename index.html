@@ -325,7 +325,7 @@ nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(19,22,27,.
   <label class="stack" style="margin-top:14px;gap:8px;color:var(--mut);font-size:13.5px">
     <span style="display:flex;align-items:center;gap:10px"><input type="checkbox" id="autoBak" style="width:18px;height:18px;accent-color:var(--acc)"> Автоматическая копия раз в 7 дней</span>
   </label>
-  <div class="ver">v3 · данные хранятся только на этом телефоне</div>
+  <div class="ver"><span id="verNum"></span> — сделано в 2026 году, данные хранятся только на вашем устройстве</div>
 </section>
 </div>
 <nav>
@@ -1122,7 +1122,7 @@ if("serviceWorker"in navigator){
     });
     fetch("./sw.js").then(function(r){return r.text();}).then(function(t){
       var m=t.match(/work-counter-v(\d+)/);
-      if(m)$("buildTag").textContent="v"+m[1];
+      if(m){$("buildTag").textContent="v"+m[1];var vn=$("verNum");if(vn)vn.textContent="v"+m[1];}
     }).catch(function(){});
     setInterval(function(){
       reg.update().catch(function(){});
