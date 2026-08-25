@@ -7,7 +7,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Учёт работы</title>
+<title>Tally</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -192,7 +192,7 @@ nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(19,22,27,.
 </head>
 <body>
 <div id="app">
-<header class="app-h"><div><h1>Учёт работы <span style="font-size:11px;font-weight:600;color:var(--dim);vertical-align:middle" id="buildTag"></span></h1><div class="h-sub" id="hdrSub"></div></div></header>
+<header class="app-h"><div><h1>Tally <span style="font-size:11px;font-weight:600;color:var(--dim);vertical-align:middle" id="buildTag"></span></h1><div class="h-sub" id="hdrSub"></div></div></header>
 
 <section class="tab on" id="tab-entry">
   <div class="date-row">
@@ -1200,7 +1200,7 @@ if("serviceWorker"in navigator){
   }).catch(function(){});
   navigator.serviceWorker.addEventListener("message",function(e){
     if(e.data&&e.data.type==="SHOW_REMINDER"){
-      new Notification("Учёт работы",{body:e.data.body});
+      new Notification("Tally",{body:e.data.body});
     }
   });
 }else{

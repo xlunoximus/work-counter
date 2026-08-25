@@ -1,4 +1,4 @@
-const CACHE = "work-counter-v24";
+﻿const CACHE = "work-counter-v25";
 const ASSETS = [
   "./",
   "./index.html",
@@ -58,7 +58,7 @@ self.addEventListener("message", (event) => {
     self.registration.getNotifications({ tag: "reminder" }).then((n) => {
       n.forEach((x) => x.close());
     });
-    self.registration.showNotification("Учёт работы", {
+    self.registration.showNotification("Tally", {
       body: "Не забудь внести сегодняшнюю работу",
       icon: "./icon-192.png",
       badge: "./icon-192.png",
@@ -76,7 +76,7 @@ self.addEventListener("message", (event) => {
 });
 
 function showReminder(text) {
-  return self.registration.showNotification("Учёт работы", {
+  return self.registration.showNotification("Tally", {
     body: text || "Не забудь внести сегодняшнюю работу",
     icon: "./icon-192.png",
     badge: "./icon-192.png",

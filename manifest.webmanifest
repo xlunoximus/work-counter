@@ -1,7 +1,7 @@
 {
-  "name": "Учёт работы",
-  "short_name": "Учёт",
-  "description": "Учёт количества выполненной работы по видам услуг",
+  "name": "Tally",
+  "short_name": "Tally",
+  "description": "Track daily work units and earnings",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
