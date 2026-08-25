@@ -104,6 +104,11 @@ svg{display:block}
 .day .nmark{position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:6px;height:6px;border-radius:50%;background:var(--acc);box-shadow:0 0 0 1px rgba(138,180,248,.25)}
 .day.offd{background:repeating-linear-gradient(45deg,transparent,transparent 4px,var(--line) 4px,var(--line) 7px);opacity:.62}
 .day.offd.today{opacity:1;border-color:var(--acc)}
+.day.inrange{background:var(--accSoft);border-radius:0}
+.day.rstart{background:var(--acc);color:#fff;border-radius:13px 0 0 13px}
+.day.rend{background:var(--acc);color:#fff;border-radius:0 13px 13px 0}
+.day.rstart.rend{border-radius:13px}
+.day.rstart .n,.day.rend .n,.day.rstart .u,.day.rend .u{color:#fff}
 .legend i.offi{background:var(--line2)}
 .legend i.noti{background:var(--acc);width:7px;height:7px}
 .cal-tools{display:flex;gap:8px;margin-bottom:12px}
@@ -239,6 +244,16 @@ nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(19,22,27,.
   <div class="range-row" id="rangeRow">
     <input type="text" class="inp" id="rFrom">
     <input type="text" class="inp" id="rTo">
+  </div>
+  <div class="card rc-wrap" id="rangeCalWrap" style="display:none">
+    <div class="cal-head">
+      <button class="icon-btn" id="rcPrev" aria-label="Назад"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+      <div class="cal-title" id="rcTitle"></div>
+      <button class="icon-btn" id="rcNext" aria-label="Вперёд"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+    </div>
+    <div class="dow"><div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div><div>Сб</div><div>Вс</div></div>
+    <div class="days" id="rcDays"></div>
+    <div class="hint" style="padding-top:10px">Тапни первый день, потом последний — диапазон выбран. Повторный тап начинает заново.</div>
   </div>
   <div class="sec-t" id="totTitle"></div>
   <div class="card total-big">
@@ -519,7 +534,7 @@ function toast(msg){
 function mk(name,price){
   return{id:"p"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),name:name,price:price||0,archived:false};
 }
-var calY,calM,totMode="month",rFrom=null,rTo=null,calTapMode="entry";
+var calY,calM,totMode="month",rFrom=null,rTo=null,calTapMode="entry",rcY=null,rcM=null,pickStage=0;
 
 /* ---------- ENTRY TAB ---------- */
 var curEntryDay=null,lastEntryDs=null;
@@ -656,6 +671,57 @@ function renderPayCard(){
 }
 
 /* ---------- TOTALS TAB ---------- */
+function rcEnsure(){
+  if(rcY===null){
+    var base=rFrom||todayStr();
+    var d=new Date(+base.slice(0,4),+base.slice(5,7)-1,1);
+    rcY=d.getFullYear();rcM=d.getMonth();
+  }
+}
+function rangePick(ds){
+  if(pickStage===1&&ds===rFrom){pickStage=0;}
+  else if(pickStage===0||!rTo&&ds<rFrom){
+    rFrom=ds;rTo=null;pickStage=1;
+  }else{
+    if(rTo&&pickStage===0){rFrom=ds;rTo=null;pickStage=1;}
+    else{rTo=ds;pickStage=0;}
+  }
+  setIsoTo($("rFrom"),rFrom);$("rFrom").dataset.iso=rFrom;
+  if(rTo){setIsoTo($("rTo"),rTo);$("rTo").dataset.iso=rTo;}
+  else{$("rTo").value="";delete $("rTo").dataset.iso;}
+  renderRangeCal();renderTotals();
+}
+function renderRangeCal(){
+  rcEnsure();
+  $("rcTitle").textContent=monthName(rcY+"-"+("0"+(rcM+1)).slice(-2));
+  var grid=$("rcDays");grid.innerHTML="";
+  var dim=new Date(rcY,rcM+1,0).getDate();
+  var firstDow=(new Date(rcY,rcM,1).getDay()+6)%7;
+  for(var i=0;i<firstDow;i++)grid.appendChild(document.createElement("div"));
+  for(var d=1;d<=dim;d++){
+    var ds=rcY+"-"+("0"+(rcM+1)).slice(-2)+"-"+("0"+d).slice(-2);
+    var cell=document.createElement("div");
+    var cls="day";
+    if(rFrom&&rTo&&ds>=rFrom&&ds<=rTo){
+      cls+=ds===rFrom?" rstart":(ds===rTo?" rend":" inrange");
+      if(rFrom===rTo)cls="day rstart rend";
+    }else if(ds===rFrom){cls="day rstart";}
+    cell.className=cls;
+    cell.innerHTML='<span class="n">'+d+"</span>";
+    (function(dss){
+      cell.addEventListener("click",function(){rangePick(dss);});
+    })(ds);
+    grid.appendChild(cell);
+  }
+}
+function rcShift(n){
+  rcM+=n;if(rcM<0){rcM=11;rcY--;}if(rcM>11){rcM=0;rcY++;}
+  renderRangeCal();
+}
+function showRangeCal(on){
+  $("rangeCalWrap").style.display=on?"block":"none";
+  if(on){rcY=null;renderRangeCal();}
+}
 function currentRange(){
   var s,e;
   if(totMode==="month"){
@@ -677,6 +743,7 @@ function switchTotMode(m){
   totMode=m;
   document.querySelectorAll("#modeSeg button").forEach(function(b){b.classList.toggle("on",b.dataset.mode===m);});
   $("rangeRow").classList.toggle("vis",m==="range");
+  showRangeCal(m==="range");
   renderTotals();
 }
 function renderTotals(){
@@ -995,6 +1062,8 @@ function init(){
       document.querySelectorAll(".tool-b").forEach(function(x){x.classList.toggle("on",x===b);});
     });
   });
+  $("rcPrev").addEventListener("click",function(){rcShift(-1);});
+  $("rcNext").addEventListener("click",function(){rcShift(1);});
   $("mNext").addEventListener("click",function(){calM++;if(calM>11){calM=0;calY++;}renderCal();});
   document.querySelectorAll("#modeSeg button").forEach(function(b){
     b.addEventListener("click",function(){switchTotMode(b.dataset.mode);});
