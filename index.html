@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="utf-8">
@@ -197,7 +197,7 @@ nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(19,22,27,.
   <div class="hint" id="entryHint" style="display:none"></div>
   <div class="day-total" id="dayTotal">
     <span>Итого за день</span>
-    <b id="dayTotalV">0 ₽</b>
+    <b id="dayTotalV">0 Br</b>
   </div>
   <div class="note-card" id="noteCard">
     <label for="dayNote">Заметка к дню</label>
@@ -240,7 +240,7 @@ nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(19,22,27,.
   </div>
   <div class="sec-t" id="totTitle"></div>
   <div class="card total-big">
-    <div class="t-money" id="tMoney">0 ₽</div>
+    <div class="t-money" id="tMoney">0 Br</div>
     <div class="t-sub" id="tSub"></div>
     <div id="forecastBox" style="display:none;margin-top:16px;padding-top:14px;border-top:1px solid var(--line)">
       <div style="font-size:12px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.8px">Прогноз до конца месяца</div>
@@ -252,19 +252,19 @@ nav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(19,22,27,.
   <div class="card" id="salCard" style="display:none">
     <div class="pp-row">
       <div class="pp-mid"><div class="pp-name">Сдельная (по данным приложения)</div><div class="pp-meta" id="salCalcMeta"></div></div>
-      <div class="pp-sum" id="salCalcV">0 ₽</div>
+      <div class="pp-sum" id="salCalcV">0 Br</div>
     </div>
     <div class="pp-row">
       <div class="pp-mid"><div class="pp-name">Сдельная факт <span style="color:var(--dim);font-size:11px">(если отличается)</span></div></div>
-      <input type="number" class="inp" id="salFactPiece" placeholder="₽" min="0" inputmode="decimal" style="width:120px;height:42px;text-align:right">
+      <input type="number" class="inp" id="salFactPiece" placeholder="Br" min="0" inputmode="decimal" style="width:120px;height:42px;text-align:right">
     </div>
     <div class="pp-row">
       <div class="pp-mid"><div class="pp-name">Премия</div></div>
-      <input type="number" class="inp" id="salBonus" placeholder="₽" min="0" inputmode="decimal" style="width:120px;height:42px;text-align:right">
+      <input type="number" class="inp" id="salBonus" placeholder="Br" min="0" inputmode="decimal" style="width:120px;height:42px;text-align:right">
     </div>
     <div class="pp-row" style="border-bottom:none;padding-bottom:2px">
       <div class="pp-mid"><div class="pp-name" style="font-weight:800">Итого получено</div><div class="pp-meta" id="salTotalMeta"></div></div>
-      <div class="pp-sum" style="font-size:19px;color:var(--acc)" id="salTotalV">0 ₽</div>
+      <div class="pp-sum" style="font-size:19px;color:var(--acc)" id="salTotalV">0 Br</div>
     </div>
   </div>
   <div class="sec-t">По видам работы</div>
@@ -365,7 +365,7 @@ function fmtDate(d){return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+
 function parseDate(s){var a=s.split("-");return new Date(+a[0],+a[1]-1,+a[2]);}
 function monthName(ms){var a=ms.split("-");return new Date(+a[0],+a[1]-1,1).toLocaleString("ru-RU",{month:"long",year:"numeric"});}
 function ruDate(ds){return parseDate(ds).toLocaleString("ru-RU",{day:"numeric",month:"long",year:"numeric"});}
-function money(n){if(!n)return"0 ₽";return n.toLocaleString("ru-RU",{minimumFractionDigits:2,maximumFractionDigits:2})+" ₽";}
+function money(n){if(!n)return"0 Br";return n.toLocaleString("ru-RU",{minimumFractionDigits:2,maximumFractionDigits:2})+" Br";}
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
 function eachDay(sStr,eStr,cb){var cur=parseDate(sStr),end=parseDate(eStr);while(cur<=end){cb(fmtDate(cur));cur.setDate(cur.getDate()+1);}}
 function daysBetween(sStr,eStr){return Math.round((parseDate(eStr)-parseDate(sStr))/86400000)+1;}
@@ -755,7 +755,7 @@ function renderSalaryCard(ms,t){
   $("salTotalV").textContent=money(total);
   var diff="";
   if(sal.pieceFact!==null&&Math.abs(sal.pieceFact-t.money)>0.5){
-    diff=(sal.pieceFact>t.money?"+":"−")+money(Math.abs(sal.pieceFact-t.money)).replace(" ₽"," ₽ ");
+    diff=(sal.pieceFact>t.money?"+":"−")+money(Math.abs(sal.pieceFact-t.money));
     $("salTotalMeta").textContent="расчётная сдельная: "+money(t.money)+(diff?" (разница "+diff.trim()+")":"");
   }else{
     $("salTotalMeta").textContent="совпадает с расчётом приложения";
@@ -797,7 +797,7 @@ function renderSettings(){
     row.className="srow"+(p.archived?" arch":"");
     row.dataset.pid=p.id;
     row.innerHTML='<input type="text" class="inp name-inp" value="'+escapeHtml(p.name)+'">'
-      +'<input type="number" class="inp price-inp" value="'+p.price+'" min="0" inputmode="decimal" placeholder="₽">'
+      +'<input type="number" class="inp price-inp" value="'+p.price+'" min="0" inputmode="decimal" placeholder="Br">'
       +'<button class="mini-btn arch-b" title="'+(p.archived?"Вернуть":"В архив")+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg></button>'
       +'<button class="mini-btn del" title="Удалить"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>';
     (function(pid){
