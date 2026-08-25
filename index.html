@@ -958,7 +958,6 @@ function renderAll(){
 }
 function init(){
   load();
-  $("buildTag").textContent="b13";
   attachDateMask($("entryDate"),renderEntry);
   attachDateMask($("rFrom"),function(){rFrom=isoOf($("rFrom"));renderTotals();});
   attachDateMask($("rTo"),function(){rTo=isoOf($("rTo"));renderTotals();});
@@ -1121,6 +1120,10 @@ if("serviceWorker"in navigator){
         }
       });
     });
+    fetch("./sw.js").then(function(r){return r.text();}).then(function(t){
+      var m=t.match(/work-counter-v(\d+)/);
+      if(m)$("buildTag").textContent="v"+m[1];
+    }).catch(function(){});
     setInterval(function(){
       reg.update().catch(function(){});
     },60*60*1000);
