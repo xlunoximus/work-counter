@@ -13,6 +13,8 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+@font-face{font-family:"nbrb";src:url("nbrb.woff2") format("woff2"),url("nbrb.woff") format("woff"),url("nbrb.ttf") format("truetype");unicode-range:U+E901}
+.nbrb{font-family:"nbrb"!important;speak:none;font-style:normal;font-weight:normal;font-variant:normal;text-transform:none;line-height:1;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;letter-spacing:normal}
 :root{
   --bg:#101216;--bg2:#171a1f;--card:#1c2026;--card2:#242933;
   --line:#2a2f37;--line2:#3a4150;
@@ -365,7 +367,9 @@ function fmtDate(d){return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+
 function parseDate(s){var a=s.split("-");return new Date(+a[0],+a[1]-1,+a[2]);}
 function monthName(ms){var a=ms.split("-");return new Date(+a[0],+a[1]-1,1).toLocaleString("ru-RU",{month:"long",year:"numeric"});}
 function ruDate(ds){return parseDate(ds).toLocaleString("ru-RU",{day:"numeric",month:"long",year:"numeric"});}
-function money(n){if(!n)return"0 Br";return n.toLocaleString("ru-RU",{minimumFractionDigits:2,maximumFractionDigits:2})+" Br";}
+var BR_HTML='<span class="nbrb">&#xe901;</span>';
+function money(n){if(!n)return"0 "+BR_HTML;return n.toLocaleString("ru-RU",{minimumFractionDigits:2,maximumFractionDigits:2})+" "+BR_HTML;}
+function moneyPlain(n){if(!n)return"0 Br";return n.toLocaleString("ru-RU",{minimumFractionDigits:2,maximumFractionDigits:2})+" Br";}
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
 function eachDay(sStr,eStr,cb){var cur=parseDate(sStr),end=parseDate(eStr);while(cur<=end){cb(fmtDate(cur));cur.setDate(cur.getDate()+1);}}
 function daysBetween(sStr,eStr){return Math.round((parseDate(eStr)-parseDate(sStr))/86400000)+1;}
@@ -568,7 +572,7 @@ function renderEntry(){
     list.appendChild(card);
   });
   $("dayTotal").style.display="flex";
-  $("dayTotalV").textContent=money(totalM)+" · "+dayUnits(ds)+" шт.";
+  $("dayTotalV").innerHTML=money(totalM)+" · "+dayUnits(ds)+" шт.";
   if(keepScroll!==null&&Math.abs(window.scrollY-keepScroll)>4){
     window.scrollTo(0,keepScroll);
   }
@@ -643,7 +647,7 @@ function renderPayCard(){
   var from=lp?lp:today.slice(0,8)+"01";
   var to=today;
   var t=periodTotals(from,to);
-  $("payVal").textContent=money(t.money);
+  $("payVal").innerHTML=money(t.money);
   var days=daysBetween(from,to);
   var parts=[t.units+" шт. за "+days+" дн."];
   if(lp)parts.push("с "+ruDate(lp));
@@ -685,7 +689,7 @@ function renderTotals(){
     label="С последней получки"+(lp?" ("+ruDateShort(lp)+")":"");
   }else label="За выбранный период";
   $("totTitle").textContent=label;
-  $("tMoney").textContent=money(t.money);
+  $("tMoney").innerHTML=money(t.money);
   $("tSub").textContent=t.units+" шт. · "+daysBetween(r.s,r.e)+" дн.";
   renderForecast(r);
   var isCurMonth=totMode==="month";
@@ -731,7 +735,7 @@ function renderForecast(r){
   var left=daysBetween(today,r.e)-1;
   if(left<=0){box.style.display="none";return;}
   var fc=perDay*left;
-  $("fcMoney").textContent="≈ "+money(t.money+fc);
+  $("fcMoney").innerHTML="≈ "+money(t.money+fc);
   var wd=0,od=0;
   var cur=new Date();
   for(var i=1;i<=left;i++){
@@ -739,26 +743,26 @@ function renderForecast(r){
     var ds=fmtDate(d);
     if(isOffday(ds))od++;else wd++;
   }
-  $("fcHint").textContent=perDay>0
+  $("fcHint").innerHTML=perDay>0
     ?("по "+money(perDay)+"/день · осталось дней: "+left+(od?" (из них выходных: "+od+")":""))
     :"";
 }
 function renderSalaryCard(ms,t){
   var sal=getSalary(ms);
-  $("salCalcV").textContent=money(t.money);
+  $("salCalcV").innerHTML=money(t.money);
   $("salCalcMeta").textContent=t.units+" шт. × цены";
   var pf=$("salFactPiece"),pb=$("salBonus");
   pf.value=sal.pieceFact===null?"":sal.pieceFact;
   pb.value=sal.bonus||"";
   var piece=sal.pieceFact!==null?sal.pieceFact:t.money;
   var total=piece+(sal.bonus||0);
-  $("salTotalV").textContent=money(total);
+  $("salTotalV").innerHTML=money(total);
   var diff="";
   if(sal.pieceFact!==null&&Math.abs(sal.pieceFact-t.money)>0.5){
     diff=(sal.pieceFact>t.money?"+":"−")+money(Math.abs(sal.pieceFact-t.money));
-    $("salTotalMeta").textContent="расчётная сдельная: "+money(t.money)+(diff?" (разница "+diff.trim()+")":"");
+    $("salTotalMeta").innerHTML="расчётная сдельная: "+money(t.money)+(diff?" (разница "+diff.trim()+")":"");
   }else{
-    $("salTotalMeta").textContent="совпадает с расчётом приложения";
+    $("salTotalMeta").innerHTML="совпадает с расчётом приложения";
   }
 }
 function renderChart(){

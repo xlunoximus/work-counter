@@ -1,10 +1,13 @@
-const CACHE = "work-counter-v20";
+const CACHE = "work-counter-v21";
 const ASSETS = [
   "./",
   "./index.html",
   "./manifest.webmanifest",
   "./icon-192.png",
-  "./icon-512.png"
+  "./icon-512.png",
+  "./nbrb.woff2",
+  "./nbrb.woff",
+  "./nbrb.ttf"
 ];
 
 self.addEventListener("install", (event) => {
